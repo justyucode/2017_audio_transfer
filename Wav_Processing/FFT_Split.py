@@ -12,17 +12,19 @@ def split_and_fft(path, sample):
 
     num = 0
     for file in files:
+        sample_rate, data = wavfile.read(file) # load the data
+        freq = data.T[0]
 
-        fs, data = wavfile.read(file) # load the data
-
-        freq = data.T[0] # this is a two channel soundtrack, I get the first track
-
-        bitrate = 16
-        # norm_freq =[(ele/2**bitrate)*2-1 for ele in freq]
-
-        f, t, Sxx = signal.spectrogram(np.array(freq))
-        np.savez_compressed(str(num), Sxx, delimiter=',')
+        f, t, Zxx = signal.stft(np.array(freq), window="")
+        np.savez_compressed(str(num), Zxx, delimiter=',')
 
         num+=1
+    return Zxx, sample_rate
 
-split_and_fft(path=os.path.dirname(os.path.abspath(__file__)),sample=1000)
+def invert_wav(Zxx, sample_rate):
+    t, x = signal.istft(Zxx)
+    wavfile.write("invert.wav", sample_rate, x)
+
+Zxx, sample_rate = split_and_fft(path=os.path.dirname(os.path.abspath(__file__)),sample=1)
+invert_wav(Zxx, sample_rate)
+
