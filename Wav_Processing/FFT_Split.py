@@ -7,7 +7,8 @@ from scipy.fftpack import fft
 from scipy.io import wavfile
 
 def split_and_fft(path, sample):
-    files = glob.glob(os.path.join(path, '*.wav'))
+    # files = glob.glob(os.path.join(path, '*.wav'))
+    files = ["test.wav"]
 
     num = 0
     for file in files:
@@ -17,9 +18,9 @@ def split_and_fft(path, sample):
         freq = data.T[0] # this is a two channel soundtrack, I get the first track
 
         bitrate = 16
-        norm_freq =[(ele/2**bitrate)*2-1 for ele in freq]
+        # norm_freq =[(ele/2**bitrate)*2-1 for ele in freq]
 
-        f, t, Sxx = signal.spectrogram(np.array(norm_freq))
+        f, t, Sxx = signal.spectrogram(np.array(freq))
         np.savez_compressed(str(num), Sxx, delimiter=',')
 
         num+=1
