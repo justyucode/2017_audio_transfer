@@ -2,8 +2,10 @@ import flask
 from flask import Flask, request
 import requests
 
+app = Flask(__name__)
+
 react_url = "TODO"
-example_wav_file_path = "TODO"
+example_wav_file_path = "../src/components/The_Glass_Child_-_Sister.mp3"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
