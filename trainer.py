@@ -18,7 +18,7 @@ npz = np.load("training_data.npz")
 input_dim = hp.input_dim
 latent_dim = hp.latent_dim
 lstm_layers = hp.lstm_layers
-num_epoch = 100
+num_epoch = 10
 gpu_id = 3
 batch_size = 200
 
@@ -52,9 +52,9 @@ for it in range(num_epoch):
         X_sample = dec(z)
 
         # Loss
-        recon_loss = F.mse_loss(X_sample, X, size_average=True)
+        recon_loss = F.mse_loss(X_sample, X)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(z_var) + z_mu**2 - 1. - z_var, 1))
-        loss += recon_loss + kl_loss
+        loss += 30. * recon_loss + kl_loss
 
         # Backward
         loss.backward()
@@ -66,11 +66,11 @@ for it in range(num_epoch):
         solver_enc.step()
         solver_dec.step()
 
-        enc.reset_hidden()
-        dec.reset_hidden()
+        # enc.reset_hidden()
+        # dec.reset_hidden()
         loss = 0
 
-        if int(file) % 200 == 0:
+        if int(file) % 10 == 0:
             torch.save(enc.cpu().state_dict(), 'classical_enc.mdl')
             torch.save(dec.cpu().state_dict(), 'classical_dec.mdl')
 

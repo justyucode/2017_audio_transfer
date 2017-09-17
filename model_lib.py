@@ -40,7 +40,7 @@ def transform_song(input_dat, enc_path, dec_path):
 if __name__ == "__main__":
     enc_path = "classical_enc.mdl"
     dec_path = "classical_dec.mdl"
-    input_dat = np.load("training_data.npz")['0']
+    input_dat = np.load("training_data.npz")['15']
     output_dat = transform_song(input_dat, enc_path, dec_path)
     np.save("output_vae", output_dat)
 
