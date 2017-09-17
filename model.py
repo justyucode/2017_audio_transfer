@@ -20,9 +20,13 @@ class RecurrentEncoder(nn.Module):
         self.mean_linear = nn.Linear(input_dim, embed_dim)
         self.var_linear = nn.Linear(input_dim, embed_dim)
 
-    def init_hidden(self, embed_dim):
-        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
-        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
+    def init_hidden(self, embed_dim, on_gpu=True):
+        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
+        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
+
+        if on_gpu:
+            self.cell_state.cuda(0)
+            self.hidden_state.cuda(0)
 
     def reset_hidden(self):
         self.cell_state = Variable(self.cell_state.data)
@@ -43,8 +47,10 @@ class RecurrentEncoder(nn.Module):
         return mean, var
 
 
-def sample_z(mu, log_var, mb_size, Z_dim):
-    eps = Variable(torch.randn(mb_size, Z_dim)).cuda()
+def sample_z(mu, log_var, mb_size, Z_dim, on_gpu=True):
+    eps = Variable(torch.randn(mb_size, Z_dim))
+    if on_gpu:
+        eps.cuda(0)
     return mu + torch.exp(log_var / 2) * eps
 
 
@@ -62,9 +68,13 @@ class RecurrentDecoder(nn.Module):
 
         self.embed_linear = nn.Linear(input_dim, out_embed)
 
-    def init_hidden(self, embed_dim):
-        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
-        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
+    def init_hidden(self, embed_dim, on_gpu=True):
+        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
+        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
+
+        if on_gpu:
+            self.cell_state.cuda(0)
+            self.hidden_state.cuda(0)
 
     def reset_hidden(self):
         self.cell_state = Variable(self.cell_state.data)

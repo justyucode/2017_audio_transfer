@@ -5,23 +5,24 @@ import torch.autograd as autograd
 import torch.optim as optim
 import numpy as np
 from torch.autograd import Variable
+
 from model import RecurrentEncoder, RecurrentDecoder, sample_z
+import hyperparameters as hp
+
 
 
 # =============================== TRAINING ====================================
 npz = np.load("training_data.npz")
 
-input_dim = 1025
-latent_dim = 300
-lstm_layers = 2
+input_dim = hp.input_dim
+latent_dim = hp.latent_dim
+lstm_layers = hp.lstm_layers
 num_epoch = 2
 
-batch_size = 100
+batch_size = 200
 
 enc = RecurrentEncoder(input_dim + latent_dim, latent_dim, lstm_layers).cuda(0)
 dec = RecurrentDecoder(latent_dim, input_dim, lstm_layers).cuda(0)
-enc.init_hidden(input_dim)
-dec.init_hidden(latent_dim)
 
 solver_enc = optim.Adam(enc.parameters(), lr=1e-5)
 solver_dec = optim.Adam(dec.parameters(), lr=1e-5)
@@ -33,6 +34,10 @@ for it in range(num_epoch):
         length, embed = dat.shape
         k = length // batch_size
         loss = 0
+        enc.init_hidden(input_dim)
+        dec.init_hidden(latent_dim)
+
+        print("Processing file number {}".format(file))
 
         for i in range(k+1):
             if i != k:
@@ -73,3 +78,10 @@ for it in range(num_epoch):
             enc.reset_hidden()
             dec.reset_hidden()
             loss = 0
+
+        if int(file) % 50 == 0:
+            torch.save(enc.cpu().state_dict(), 'enc.mdl')
+            torch.save(dec.cpu().state_dict(), 'dec.mdl')
+
+            enc = enc.cuda(0)
+            dec = dec.cuda(0)
