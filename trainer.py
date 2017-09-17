@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.autograd as autograd
 import torch.optim as optim
 import numpy as np
+from random import shuffle
 from torch.autograd import Variable
 
 from model import RecurrentEncoder, RecurrentDecoder, sample_z
@@ -17,19 +18,22 @@ npz = np.load("training_data.npz")
 input_dim = hp.input_dim
 latent_dim = hp.latent_dim
 lstm_layers = hp.lstm_layers
-num_epoch = 2
+num_epoch = 20
 
 batch_size = 200
 
-enc = RecurrentEncoder(input_dim + latent_dim, latent_dim, lstm_layers).cuda(0)
+enc = RecurrentEncoder(input_dim, latent_dim, lstm_layers).cuda(0)
 dec = RecurrentDecoder(latent_dim, input_dim, lstm_layers).cuda(0)
 
-solver_enc = optim.Adam(enc.parameters(), lr=1e-5)
-solver_dec = optim.Adam(dec.parameters(), lr=1e-5)
+solver_enc = optim.Adam(enc.parameters(), lr=1e-6)
+solver_dec = optim.Adam(dec.parameters(), lr=1e-6)
 print("At least this should probably run")
 
 for it in range(num_epoch):
-    for file in npz.files:
+    files = npz.files
+    shuffle(files)
+
+    for file in files:
         dat = npz[file].T
         length, embed = dat.shape
         k = length // batch_size
@@ -39,47 +43,34 @@ for it in range(num_epoch):
 
         print("Processing file number {}".format(file))
 
-        for i in range(k+1):
-            if i != k:
-                bulk_X = dat[i * batch_size: (i + 1) * batch_size]
-                delta_x = batch_size
-            else:
-                bulk_X = dat[i * batch_size:]
-                delta_x = bulk_X.shape[0]
+        X = (dat).astype(np.float)
+        X = Variable(torch.from_numpy(X)).cuda(0).float()
 
-                if delta_x == 0:
-                    continue
+        # Forward
+        z_mu, z_var = enc(X)
+        z = sample_z(z_mu, z_var, X.size(0), latent_dim)
+        X_sample = dec(z)
 
-            for index in range(delta_x):
-                X = (bulk_X[index:index+1]).astype(np.float)
-                X = Variable(torch.from_numpy(X)).cuda(0).float()
-                cat_X = torch.cat([X, dec.cell_state.squeeze()[-1:]], 1)
+        # Loss
+        recon_loss = F.mse_loss(X_sample, X, size_average=True)
+        kl_loss = torch.mean(0.5 * torch.sum(torch.exp(z_var) + z_mu**2 - 1. - z_var, 1))
+        loss += recon_loss + kl_loss
 
-                # Forward
-                z_mu, z_var = enc(cat_X)
-                z = sample_z(z_mu, z_var, 1, latent_dim)
-                X_sample = dec(z)
+        # Backward
+        loss.backward()
+        print(loss.data.cpu().numpy().flat[0])
+        nn.utils.clip_grad_norm(enc.parameters(), 5)
+        nn.utils.clip_grad_norm(dec.parameters(), 5)
 
-                # Loss
-                recon_loss = F.mse_loss(X_sample, X, size_average=True)
-                kl_loss = torch.mean(0.5 * torch.sum(torch.exp(z_var) + z_mu**2 - 1. - z_var, 1))
-                loss += recon_loss + kl_loss
+        # Update
+        solver_enc.step()
+        solver_dec.step()
 
-            # Backward
-            loss.backward()
-            print(loss.data.cpu().numpy().flat[0])
-            nn.utils.clip_grad_norm(enc.parameters(), 1)
-            nn.utils.clip_grad_norm(dec.parameters(), 1)
+        enc.reset_hidden()
+        dec.reset_hidden()
+        loss = 0
 
-            # Update
-            solver_enc.step()
-            solver_dec.step()
-
-            enc.reset_hidden()
-            dec.reset_hidden()
-            loss = 0
-
-        if int(file) % 50 == 0:
+        if int(file) % 200 == 0:
             torch.save(enc.cpu().state_dict(), 'enc.mdl')
             torch.save(dec.cpu().state_dict(), 'dec.mdl')
 

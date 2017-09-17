@@ -25,8 +25,8 @@ class RecurrentEncoder(nn.Module):
         self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
 
         if on_gpu:
-            self.cell_state.cuda(0)
-            self.hidden_state.cuda(0)
+            self.cell_state = self.cell_state.cuda(0)
+            self.hidden_state = self.hidden_state.cuda(0)
 
     def reset_hidden(self):
         self.cell_state = Variable(self.cell_state.data)
@@ -50,7 +50,7 @@ class RecurrentEncoder(nn.Module):
 def sample_z(mu, log_var, mb_size, Z_dim, on_gpu=True):
     eps = Variable(torch.randn(mb_size, Z_dim))
     if on_gpu:
-        eps.cuda(0)
+        eps = eps.cuda(0)
     return mu + torch.exp(log_var / 2) * eps
 
 
@@ -73,8 +73,8 @@ class RecurrentDecoder(nn.Module):
         self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim))
 
         if on_gpu:
-            self.cell_state.cuda(0)
-            self.hidden_state.cuda(0)
+            self.cell_state = self.cell_state.cuda(0)
+            self.hidden_state = self.hidden_state.cuda(0)
 
     def reset_hidden(self):
         self.cell_state = Variable(self.cell_state.data)
