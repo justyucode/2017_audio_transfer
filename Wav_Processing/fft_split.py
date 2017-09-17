@@ -8,7 +8,9 @@ from scipy.fftpack import fft
 from scipy.io import wavfile
 
 DTYPE = "float16"
-FFT_SIZE = 2048
+FFT_SIZE = 512
+MAGNITUDE_SCALING = 30
+
 
 def split_and_fft(path):
     start_time = time.time()
@@ -18,7 +20,7 @@ def split_and_fft(path):
 
     num = 0
     for file in files:
-        data, sample_rate = librosa.load('test.wav', sr=int(44100/20))
+        data, sample_rate = librosa.load('test0.wav', sr=int(8000))
         #freq = data.T[0]
  
         spectrogram = librosa.stft(data, dtype=DTYPE, n_fft=FFT_SIZE)
@@ -31,9 +33,10 @@ def split_and_fft(path):
 
         num+=1
 
+    print(spectrogram.shape)
     list_spec.append(spectrogram)
 
-    np.savez_compressed("training_data", list_spec, delimiter=',')
+    np.savez("training_data", list_spec, delimiter=',')
 
     return spectrogram, sample_rate
 
@@ -42,14 +45,14 @@ def invert_wav(spectrogram, sample_rate, iterations):
 
     # Try to reconstruct the phase using the iterative algorithm above.
     phase = np.exp(1.j * np.random.uniform(0., 2*np.pi, size=actual_phase.shape))
-    x_ = librosa.istft(mag * phase)
+    x_ = librosa.istft((mag*MAGNITUDE_SCALING) * phase)
 
     for i in range(iterations+1):
         _, phase = librosa.magphase(librosa.stft(x_, n_fft=FFT_SIZE))
-        x_ = librosa.istft(mag * phase)
+        x_ = librosa.istft((mag*MAGNITUDE_SCALING) * phase)
 
     #print(sample_rate)
-    wavfile.write("invert.wav", int(sample_rate), x_)
+    wavfile.write("invert2.wav", int(sample_rate), x_)
 
 specs, sample_rate = split_and_fft(path=os.path.dirname(os.path.abspath(__file__)))
-#invert_wav(specs, sample_rate, iterations=10)
+invert_wav(specs, sample_rate, iterations=10)
