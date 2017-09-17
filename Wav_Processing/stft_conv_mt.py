@@ -10,11 +10,11 @@ from scipy.io import wavfile
 from multiprocessing import Pool
 
 DTYPE = "float16"
-FFT_SIZE = 2048
+FFT_SIZE = 1024
 
 def stft_wav(path):
     print(path)
-    data, sample_rate = librosa.load(path, sr=int(44100/20))
+    data, sample_rate = librosa.load(path, sr=int(4410))
     spectrogram = librosa.stft(data, dtype=DTYPE, n_fft=FFT_SIZE)
     return spectrogram
 
