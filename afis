@@ -1,0 +1,55 @@
+[33mcommit 68439cd4049a20ff96da4d5d3505262cf302186f[m
+Merge: 08e7c4f 329bc79
+Author: aldcheng <adcheng@mit.edu>
+Date:   Sat Sep 16 16:36:08 2017 -0400
+
+    Merge branch 'master' of https://github.com/justyucode/2017_audio_transfer
+
+[33mcommit 08e7c4f2b5cbf59c451d846636d7250ecfecf6ac[m
+Author: aldcheng <adcheng@mit.edu>
+Date:   Sat Sep 16 16:35:13 2017 -0400
+
+    add updated split file
+
+[33mcommit 329bc79ff4df188388daa3d6c36c4e1a0a2e7e2d[m
+Merge: b40c9ef 9cb8902
+Author: Yilun Du <yilundu@mit.edu>
+Date:   Sat Sep 16 15:37:21 2017 -0400
+
+     branch 'master' of https://github.com/justyucode/2017_audio_transfer
+
+[33mcommit b40c9ef6f8ed223b53008e590e85844c67bbc84e[m
+Author: Yilun Du <yilundu@mit.edu>
+Date:   Sat Sep 16 15:35:31 2017 -0400
+
+    Added vae model
+
+[33mcommit 9cb89021e015a096c741a011ea01e5260d73803b[m
+Author: aldcheng <adcheng@mit.edu>
+Date:   Sat Sep 16 15:34:36 2017 -0400
+
+    switch to stft
+
+[33mcommit ef2d0cf00ee9ff4f46279863c4ecc2526829e945[m
+Author: Yilun Du <yilundu@mit.edu>
+Date:   Sat Sep 16 15:05:18 2017 -0400
+
+    bugfix
+
+[33mcommit 03d643fc9b1c9f31e831c73d95fc32d6023309ab[m
+Author: Yilun Du <yilundu@mit.edu>
+Date:   Sat Sep 16 14:52:20 2017 -0400
+
+    Added inverse fft
+
+[33mcommit 7fc0792873b8ade619e0679e62f87eddf67a19ab[m
+Author: aldcheng <adcheng@mit.edu>
+Date:   Sat Sep 16 14:02:07 2017 -0400
+
+    initial spectrogram push
+
+[33mcommit ba588ae427ca3353f46cd8263b34a6861ed4ba5a[m
+Author: Justin Yu <kyujustin@gmail.com>
+Date:   Sat Sep 16 13:04:30 2017 -0400
+
+    Initial commit
