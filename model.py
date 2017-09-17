@@ -21,12 +21,12 @@ class RecurrentEncoder(nn.Module):
         self.var_linear = nn.Linear(input_dim, embed_dim)
 
     def init_hidden(self, embed_dim):
-        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda()
-        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda()
+        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
+        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
 
     def reset_hidden(self):
-        self.cell_state = self.cell_state.detach()
-        self.hidden_state = self.hidden_state.detach()
+        self.cell_state = Variable(self.cell_state.data)
+        self.hidden_state = Variable(self.hidden_state.data)
 
     def forward(self, data):
         x = data.view(data.size(0), 1, self.input_dim)
@@ -63,12 +63,12 @@ class RecurrentDecoder(nn.Module):
         self.embed_linear = nn.Linear(input_dim, out_embed)
 
     def init_hidden(self, embed_dim):
-        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda()
-        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda()
+        self.cell_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
+        self.hidden_state = Variable(torch.zeros(self.lstm_layer, 1, self.input_dim)).cuda(0)
 
     def reset_hidden(self):
-        self.cell_state = self.cell_state.detach()
-        self.hidden_state = self.hidden_state.detach()
+        self.cell_state = Variable(self.cell_state.data)
+        self.hidden_state = Variable(self.hidden_state.data)
 
     def forward(self, data):
         x = data.view(data.size(0), 1, self.input_dim)

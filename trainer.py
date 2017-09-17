@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import torch.nn as nn
 import torch.autograd as autograd
 import torch.optim as optim
 import numpy as np
@@ -10,8 +11,8 @@ from model import RecurrentEncoder, RecurrentDecoder, sample_z
 # =============================== TRAINING ====================================
 npz = np.load("training_data.npz")
 
-input_dim = 1000
-latent_dim = 100
+input_dim = 1025
+latent_dim = 300
 lstm_layers = 2
 num_epoch = 2
 
@@ -28,20 +29,25 @@ print("At least this should probably run")
 
 for it in range(num_epoch):
     for file in npz.files:
-        dat = npz[file]
+        dat = npz[file].T
         length, embed = dat.shape
         k = length // batch_size
         loss = 0
 
         for i in range(k+1):
             if i != k:
-                X = dat[i * batch_size: (i + 1) * batch_size, :]
+                bulk_X = dat[i * batch_size: (i + 1) * batch_size]
+                delta_x = batch_size
             else:
-                X = dat[i * batch_size:, :]
+                bulk_X = dat[i * batch_size:]
+                delta_x = bulk_X.shape[0]
 
-            for index in range(k):
-                X = X[index:index+1]
-                X = Variable(torch.from_numpy(X)).cuda(0)
+                if delta_x == 0:
+                    continue
+
+            for index in range(delta_x):
+                X = (bulk_X[index:index+1]).astype(np.float)
+                X = Variable(torch.from_numpy(X)).cuda(0).float()
                 cat_X = torch.cat([X, dec.cell_state.squeeze()[-1:]], 1)
 
                 # Forward
@@ -56,6 +62,7 @@ for it in range(num_epoch):
 
             # Backward
             loss.backward()
+            print(loss.data.cpu().numpy().flat[0])
             nn.utils.clip_grad_norm(enc.parameters(), 1)
             nn.utils.clip_grad_norm(dec.parameters(), 1)
 
@@ -65,3 +72,4 @@ for it in range(num_epoch):
 
             enc.reset_hidden()
             dec.reset_hidden()
+            loss = 0

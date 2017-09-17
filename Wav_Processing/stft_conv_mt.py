@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import librosa
 import glob
@@ -24,9 +23,9 @@ def extract_data(l_f, threads):
     return pool.map(stft_wav, l_f)
 
 if __name__ == "__main__":
-    files = glob.glob(os.path.join("/media/adcheng/TOSHIBA EXT/Wav", '*.wav'))
+    files = glob.glob(os.path.join("/data/vision/billf/object-properties/yilundu/hackmit/2017_audio_transfer/Wav_Processing", '*.wav'))
 
-    list_spec = extract_data(files, 4)
+    list_spec = extract_data(files, 32)
 
     dictionary_list = {str(i): val for (i, val) in enumerate(list_spec)}
-    np.savez_compressed("training_data", **dictionary_list)
+    np.savez("training_data", **dictionary_list)
