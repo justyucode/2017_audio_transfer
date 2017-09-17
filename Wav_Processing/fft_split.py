@@ -34,15 +34,14 @@ def split_and_fft(path):
 
         num+=1
 
-        print(spectrogram.shape)    
+        print(spectrogram.shape)
         list_spec.append(spectrogram)
-    
 
     np.savez("training_data", list_spec, delimiter=',')
 
     return spectrogram, sample_rate
 
-def invert_wav(spectrogram, sample_rate, iterations):
+def invert_wav(spectrogram, sample_rate, iterations, name):
     mag, actual_phase = librosa.magphase(spectrogram)
 
     # Try to reconstruct the phase using the iterative algorithm above.
@@ -54,7 +53,14 @@ def invert_wav(spectrogram, sample_rate, iterations):
         x_ = librosa.istft((GAIN * mag) * phase)
 
     #print(sample_rate)
-    wavfile.write("invert2.wav", int(sample_rate), x_)
+    wavfile.write(name + ".wav", int(sample_rate), x_)
 
-specs, sample_rate = split_and_fft(path=os.path.dirname(os.path.abspath(__file__)))
-invert_wav(specs, sample_rate, iterations=10)
+# specs, sample_rate = split_and_fft(path="./")
+sample_rate = 4410 / 10
+
+specs_input= np.load("input_vae.npy")
+specs_output = np.load("output_vae.npy")
+
+specs = specs_output * 100
+invert_wav(specs, sample_rate, 10, "output")
+invert_wav(specs_input, sample_rate * 10, 10, "input")

@@ -51,5 +51,7 @@ def invert_wav(spectrogram, sample_rate, iterations):
     #print(sample_rate)
     wavfile.write("invert.wav", int(sample_rate), x_)
 
-specs, sample_rate = split_and_fft(path=os.path.dirname(os.path.abspath(__file__)))
-#invert_wav(specs, sample_rate, iterations=10)
+#specs, sample_rate = split_and_fft(path=os.path.dirname(os.path.abspath(__file__)))
+specs = np.load("../output_vae.npy")
+sample_rate = 513
+invert_wav(specs, sample_rate, iterations=10)
